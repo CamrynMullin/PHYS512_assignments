@@ -4,12 +4,12 @@ import matplotlib.pyplot as plt
 
 dat = np.loadtxt('lakeshore.txt')
 data = dat.T
-V = np.linspace(data[1][2], data[1][-3], 1000)
+V = np.linspace(data[1][2], data[1][-3], len(data[0]))
 #V = data[1][60]
 
 def lakeshore(V,data):
-    T_true = np.linspace(data[0][0], data[0][-1], 1000) #tempurature
-    V_true = np.linspace(data[1][0], data[1][-1], 1000) #voltage
+    T_true = data[0] #tempurature
+    V_true = data[1] #voltage
     dV_dT = data[2]    
     try:
         T = np.empty(len(V))
@@ -29,7 +29,7 @@ def lakeshore(V,data):
         T[i] = np.polyval(p, V[i])
     return T
 print('Voltage at a tempurature of', V, 'is', lakeshore(V,data))
-plt.plot(np.linspace(data[1][0], data[1][-1], 1000), np.linspace(data[0][0], data[0][-1], 1000), label='true fit')
+plt.plot(data[1],data[0]), label='true fit')
 plt.plot(V, lakeshore(V,data), '*', label='interpolated')
 plt.xlabel('Voltage')
 plt.ylabel('Temp')
