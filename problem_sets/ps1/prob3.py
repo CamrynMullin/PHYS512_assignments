@@ -2,6 +2,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy import interpolate
+from sklearn.neighbors import NearestNeighbors
 
 dat = np.loadtxt('lakeshore.txt')
 data = dat.T
@@ -13,20 +14,27 @@ def lakeshore(V,data):
     V_pts = data[1] #voltage
     dV_dT = data[2] #dV/dT    
     
-    T_line = np.linspace(data[0][0], data[0][-1], 1000)
-    spln = interpolate.splrep(T_pts, V_pts)
-    V_line = interpolate.splev(T_line, spln)
-
-    try: 
-        num = len(V)
+    try:
+        npts = len(V)
     except TypeError:
-        V = [V]
-        num = len(V)
-    T = np.empty(num)
-    for i in range(num):
-        for j, volt in enumerate(V_line):
-            if np.round(V[i], 3) == np.round(volt,3):
-                T[i] = T_line[j]
+        V = np.array([V])
+        npts = len(V)
+
+    V_pts2 = V_pts.reshape(-1,1)
+    V2 = V.reshape(-1,1)
+    nbrs  = NearestNeighbors(n_neighbors=4, algorithm='ball_tree').fit(V_pts2)
+    distances, indicies  = nbrs.kneighbors(V2, 4)
+    V_interp = np.empty(np.shape(indicies))
+    T_interp = np.empty(np.shape(indicies))
+    for i in range(npts):
+        for j in range(len(indicies[0])): 
+            V_interp[i][j] = V_pts[indicies[i,j]]
+            T_interp[i][j] = T_pts[indicies[i,j]]
+    #print(V_interp)
+    T = np.empty(npts)
+    for i in range(npts):
+        poly = np.polyfit(V_interp[i],T_interp[i],3)
+        T[i] = np.polyval(poly, V[i])
     err = 'error' 
     return T, err
 
@@ -34,7 +42,7 @@ print('At the voltage', V, 'the tempurature is', lakeshore(V,data)[0], 'with unc
 plt.plot(data[0],data[1],  label='Temp vs Volt relation')
 plt.plot(lakeshore(V,data)[0],V, '*',  label='interpolated')
 #plt.plot(lakeshore(V,data)[2], lakeshore(V, data)[3],  label='temp points')
-plt.ylabel('Voltage')
-plt.xlabel('Temp')
+plt.ylabel('Voltage (V)')
+plt.xlabel('Temp (k)')
 plt.legend()
 plt.show()

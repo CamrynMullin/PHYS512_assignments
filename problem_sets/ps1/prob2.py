@@ -18,4 +18,5 @@ def ndiff(fun,x,full=False):
     return deriv
 
 #print(ndiff(fun, x))
-print(ndiff(fun, x, full=True))
+print('The derivative is',ndiff(fun, x, full=True)[0], 'with error', ndiff(fun, x, full=True)[1])
+
