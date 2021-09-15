@@ -1,13 +1,12 @@
 #problem 3 260926298
 import numpy as np
 import matplotlib.pyplot as plt
-from scipy import interpolate
 from sklearn.neighbors import NearestNeighbors
 
 dat = np.loadtxt('lakeshore.txt')
 data = dat.T
 V = np.linspace(data[1][0], data[1][-1], 10)
-#V = data[1][60]
+#V = 0.8
 
 def lakeshore(V,data):
     T_pts = data[0] #tempurature
