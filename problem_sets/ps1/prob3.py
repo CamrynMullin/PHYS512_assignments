@@ -1,21 +1,20 @@
 #problem 3 260926298
 import numpy as np
 import matplotlib.pyplot as plt
-from sklearn.neighbors import NearestNeighbors
 from scipy import interpolate
 
 dat = np.loadtxt('lakeshore.txt')
 data = dat.T
-V = np.linspace(data[1][0], data[1][-1], 10)
-#V = 0.8
+V = np.linspace(data[1][0], data[1][-1], 10) #V an array
+#V = 0.8 #single V
 
 def lakeshore(V,data):
     T_pts = data[0] #tempurature
     V_pts = data[1] #voltage    
     
-    V_use, T_use= zip(*sorted(zip(V_pts, T_pts)))
-    spln=interpolate.splrep(V_use,T_use)
-    T=interpolate.splev(V,spln)
+    V_use, T_use= zip(*sorted(zip(V_pts, T_pts))) #need to sort x values
+    spln = interpolate.splrep(V_use,T_use)
+    T = interpolate.splev(V,spln)
     
     #the error
     bootstrap1 = np.random.choice(np.linspace(0, len(V_pts)-1, len(V_pts), dtype=int), len(V_pts)) #bootstrap sample of indicies
@@ -29,7 +28,7 @@ def lakeshore(V,data):
         T_boot = T_pts[bootstrap]
         V_use, T_use= zip(*sorted(zip(V_boot, T_boot)))
         spln = interpolate.splrep(V_use,T_use)
-        var.append(np.var(spln[0]))
+        var.append(np.var(spln[0])) #variance in spline at each point
     err = np.var(var)
     return T, err
 

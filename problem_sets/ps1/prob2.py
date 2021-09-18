@@ -13,12 +13,12 @@ def ndiff(fun,x,full=False):
     deriv = (f1-f2)/(2*dx) #the derivative
     
     if full==True:
-        #err = f(x)*eps/dx + 1/6*f^3(x)*dx**2
+        #err = f(x)*eps/dx + 1/6*f'''(x)*dx**2
         deriv_3 = (fun(x+2*dx)-2*f1-fun(x-2*dx)+2*f2)/(2*dx**3)
         err = f0*eps/dx + 1/6*deriv_3*dx**2 #the error
-        return deriv, err
+        return deriv, dx, err
     return deriv
 
 #print(ndiff(fun, x))
-print('The derivative is',ndiff(fun, x, full=True)[0], 'with error', ndiff(fun, x, full=True)[1])
+print('The derivative at the point(s) is',ndiff(fun, x, full=True)[0], 'with dx', ndiff(fun, x, full=True)[1], 'and with error', ndiff(fun, x, full=True)[2])
 

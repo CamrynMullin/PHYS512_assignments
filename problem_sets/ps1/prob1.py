@@ -14,7 +14,6 @@ print()
 print('At x=42 the derivative of f(x)=exp(x) is', deriv1, 'with fractional error of', deriv1/f1-1)
 print('The "real" derivative is', f1)
 
-#x = 4200
 f2 = np.exp(0.01*x)
 dx2 = (eps*f2/(0.01**5*f2))**(1/5)
 deriv2 = 1/(12*dx2)*(8*np.exp(0.01*(x+dx2)) - 8*np.exp(0.01*(x-dx2)) - np.exp(0.01*(x+2*dx2)) + np.exp(0.01*(x-2*dx2)))
