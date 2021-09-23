@@ -34,19 +34,19 @@ def integrate_adaptive(fun,a,b,tol,extra=None):
         right = integrate_adaptive(fun,mid,b,tol/2,extra=(b,x,y))
         return left+right
 a = 0
-b = 2
+b = 1
 tol = 1e-7
 counter = 0
 exp = integrate_adaptive(np.exp,a,b,tol)
-err = np.abs(exp-(np.exp(2) - np.exp(0)))
+err = np.abs(exp-(np.exp(b) - np.exp(a)))
 #print(exp)
-print('integral exp(x) from 0 to 2 is', exp, 'with error', err, 'and with',counter, 'function calls. This saved', 135-counter, 'calls compaired to the "lazy" method in class.' )
+print('integral exp(x) from 0 to 1 is', exp, 'with error', err, 'and with',counter, 'function calls. This saved', 135-counter, 'calls compaired to the "lazy" method in class.' )
 
-a = -10
-b = 10
+a = -100
+b = 100
 counter = 0
 arctan = integrate_adaptive(lorentz,a,b,tol)
-err = np.abs(arctan-(np.arctan(10) - np.arctan(-10)))
+err = np.abs(arctan-(np.arctan(b) - np.arctan(a)))
 #print(arctan)
-print('integral lorentz(x) form -10 to 10', arctan, 'with error', err,'and with', counter, 'function calls. This saved', 5175-counter, 'calls compared to the "lazy" method used in class.')
+print('integral lorentz(x) form -100 to 100', arctan, 'with error', err,'and with', counter, 'function calls. This saved', 5175-counter, 'calls compared to the "lazy" method used in class.')
 
