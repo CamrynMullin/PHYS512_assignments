@@ -14,10 +14,8 @@ def integrate_adaptive(fun,a,b,tol,extra=None):
         y = np.empty(5)
         for i,xi in enumerate(x):
             if xi in extra[0]:
-                for j,xj in enumerate(extra[0]):
-                    if xi == xj:
-                        y[i] = extra[1][j]
-                        break
+                j = np.where(extra[0] == xi)
+                y[i] = extra[1][j]
             else:
                 y[i] = fun(xi)
                 counter+=1
