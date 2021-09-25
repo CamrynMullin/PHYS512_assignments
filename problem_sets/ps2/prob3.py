@@ -29,7 +29,7 @@ def model_log2(x,tol,poly='chebyshev'):
             error = np.abs(p-y)
     
     print('Needed', ncoeff, 'terms to evalualte {}'.format(poly))
-    rms = np.sqrt(np.sum((p - np.mean(p))**2)/len(p))
+    rms = np.sqrt(np.sum((y - p)**2)/len(p))
     return p, error, rms, coeff
 
 def mylog2(x,coeff,poly='chebyshev'):
@@ -45,7 +45,7 @@ def mylog2(x,coeff,poly='chebyshev'):
     
     ln = log2_x/np.log2(np.exp(1)) #change of base log rule: ln(x) = log2(x)/log2(e)
     error = np.abs(ln - np.log(x)) #np.log is the numpy ln
-    rms = np.sqrt(np.sum((ln - np.mean(ln))**2)/len(ln))
+    rms = np.sqrt(np.sum((np.log(x) - ln)**2)/len(ln))
     return ln, error, rms
 
 npt = 1000
