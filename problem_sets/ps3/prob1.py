@@ -12,14 +12,14 @@ def rk4_step(fun,x,y,h):
     k2 = h*fun(x+h/2,y+k1/2)
     k3 = h*fun(x+h/2,y+k2/2)
     k4 = h*fun(x+h,y+k3)
-    #y1 = (k1 + 2*k2 + 2*k3 + k4)/6  
     return (k1 + 2*k2 + 2*k3 + k4)/6 
 
 n_steps = 200
-x = np.linspace(-20,20,n_steps)    
-y_true = np.exp(np.arctan(x))
+x = np.linspace(-20,20,n_steps)  
+c = 1/np.exp(np.arctan(-20)) #1=c*exp(arctan(-20) from intial conditions
+y_true = c*np.exp(np.arctan(x))#1/(1+20**2)*(1+x**2)#np.exp(np.arctan(x))
 y = np.zeros(n_steps)
-y[0] = y_true[0]#1 #y(-20) = 1
+y[0] = 1 #y(-20) = 1
 for i in range(n_steps-1):
     counter = 0
     h = x[i+1]-x[i]
@@ -35,7 +35,7 @@ def rk4_stepd(fun,x,y,h):
     return (4*y2-y1)/3
 
 y = np.zeros(n_steps)
-y[0] = y_true[0]#1
+y[0] = 1
 for i in range(n_steps-1):
     counter = 0
     h = x[i+1]-x[i]
