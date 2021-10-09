@@ -46,6 +46,16 @@ ax.legend()
 plt.savefig('Telescope with N=1.png')
 plt.show()
 
+fig = plt.figure()
+ax = fig.add_subplot(111, projection = '3d')
+ax.plot3D(np.linspace(x.min(), x.max(), len(x)), np.linspace(y.min(), y.max(), len(y)), z_fit-z_pred, '.')
+ax.plot3D(np.linspace(x.min(), x.max(), len(x)), np.linspace(y.min(), y.max(), len(y)), np.zeros(len(z)))
+ax.set_xlabel('x')
+ax.set_ylabel('y')
+ax.set_zlabel('z')
+plt.savefig('Residuals.png')
+plt.show()
+
 #part c
 N = np.eye(len(x))*(z_fit - z_pred)**2 #noise is diagonal matrix of errors squared
 N_inv = np.linalg.inv(N)
