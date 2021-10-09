@@ -21,32 +21,25 @@ y = np.zeros(n_steps)
 y[0] = 1 #y(-20) = 1
 for i in range(n_steps-1):
     counter = 0
-    h = x[i+1]-x[i]
+    h = x[i+1] - x[i]
     y[i+1] = y[i] + rk4_step(fun,x[i],y[i],h) 
 
 print('The error is', np.std(y-y_true), 'with', counter,'function evaluations per step')   
 
-#def rk4_stepd(fun,x,y,h):
-    #y1 = rk4_step(fun,x,y,h)
-    #y2a = rk4_step(fun,x,y,h/2)
-    #y2b = rk4_step(fun,x+h/2,y+y2a,h/2)
-    #y2 = y2a + y2b
-    #return (4*y2-y1)/3
-
 def rk4_stepd(fun,x,y,h):
-    #y1 = rk4_step(fun,x,y,h)
+    #full step
     k1 = h*fun(x,y)
     k2 = h*fun(x+h/2,y+k1/2)
     k3 = h*fun(x+h/2,y+k2/2)
     k4 = h*fun(x+h,y+k3)
     y1 = (k1 + 2*k2 + 2*k3 + k4)/6     
-    #y2a = rk4_step(fun,x,y,h/2)
+    #half step 1
     k1a = k1/2
     k2a = h/2*fun(x+h/4,y+k1a/2)
     k3a = h/2*fun(x+h/4,y+k2a/2)
     k4a = h/2*fun(x+h/2,y+k3a)
     y2a = (k1a + 2*k2a + 2*k3a + k4a)/6  
-    #y2b = rk4_step(fun,x+h/2,y+y2a,h/2)
+    #half step 2
     x += h/2
     y += y2a
     k1b = h/2*fun(x,y)
@@ -54,15 +47,15 @@ def rk4_stepd(fun,x,y,h):
     k3b = h/2*fun(x+h/4,y+k2b/2)
     k4b = h/2*fun(x+h/2,y+k3b)
     y2b = (k1b + 2*k2b + 2*k3b + k4b)/6  
-    y2 = y2a + y2b
-    return (4*y2-y1)/3    
+    y2 = y2a + y2b #half step combination
+    return (4*y2-y1)/3 #combine to cancel leading order error
     
 y = np.zeros(n_steps)
 y[0] = 1
 for i in range(n_steps-1):
     counter = 0
-    h = x[i+1]-x[i]
-    y[i+1] = y[i]+rk4_stepd(fun,x[i],y[i],h)
+    h = x[i+1] - x[i]
+    y[i+1] = y[i] + rk4_stepd(fun,x[i],y[i],h)
 
 print('The error is', np.std(y-y_true), 'with', counter,'function evaluations per step')  
 
