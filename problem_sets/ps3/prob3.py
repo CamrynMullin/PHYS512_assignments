@@ -1,62 +1,66 @@
-#problem 3
+#problem 3 Camryn Mullin 260926298
 import numpy as np
 import matplotlib.pyplot as plt
 
+def fun(params, x, y):
+    return params[0]*(x**2 + y**2) - params[1]*x - params[2]*y + params[3]
+
 data = np.loadtxt('dish_zenith.txt')
 xyz = data.T
-
-def fun(params, x, y):
-    return (x-min(np.abs(x)))*params[0] + (y-min(np.abs(y)))*params[1] + params[2]
-    #return (x-np.min(np.abs(x)))**2 + (y-np.min(np.abs(y)))
-
 x = xyz[0]
 y = xyz[1]
 z = xyz[2]
-a = 0.001
-params = np.array([2*a*min(np.abs(x)), 2*a*min(np.abs(y)), min(z)])
-z_fit = fun(params,x,y)
+
+#part b
 nd = len(x)
-nm = len(xyz)
+nm = 4
 A = np.zeros([nd, nm])
-A[:,0] = x
-A[:,1] = y 
-A[:,2] = 1
+A[:,0] = x**2 + y**2
+A[:,1] = x
+A[:,2] = y
+A[:,3] = 1
 #assume noise is 1 for now
 lhs = A.T@A
-rhs = A.T@z_fit
-m = np.linalg.pinv(lhs)@rhs
-#u,s,v=np.linalg.svd(A,0)
-#m = v@u@s@z
+rhs = A.T@z
+m = np.linalg.inv(lhs)@rhs
 z_pred = A@m
-chi2 = np.sum((z_fit-z_pred)**2)
-print('The residual is', chi2)
+
+print('The best fit parameters a,b,c,d are', m)
+a = m[0]
+x0 = m[1]/(m[0]*2*-1)
+y0 = m[2]/(m[0]*2*-1)
+z0 = m[3] - a*x0**2 - a*y0**2
+print('a=', a, 'x0=', x0, 'y0=', y0,'z0=', z0)
+
+z_fit = fun(m,x,y)
+
 fig = plt.figure()
 ax = fig.add_subplot(111, projection = '3d')
 ax.plot3D(x, y, z_fit, 'blue', label = 'fit')
-ax.plot3D(x, y, z, 'red', label = 'real')
+ax.plot3D(x, y, z_pred, 'red', label = 'prediced')
+ax.plot3D(x, y, z, 'green', label = 'real data')
 ax.set_xlabel('x')
 ax.set_ylabel('y')
 ax.set_zlabel('z')
-plt.legend()
+ax.legend()
+plt.savefig('Telescope with N=1.png')
 plt.show()
 
-#fig = plt.figure()
-#ax = fig.add_subplot(111, projection = '3d')
-#ax.plot3D(np.linspace(min(x), max(x), len(x)), np.linspace(min(y), max(y), len(y)), z_fit - z_pred)
-#ax.set_xlabel('x')
-#ax.set_ylabel('y')
-#ax.set_zlabel('z')
-#plt.title('Residuals')
-#plt.show()
+#part c
+N = np.eye(len(x))*(z_fit - z_pred)**2 #noise is diagonal matrix of errors squared
+N_inv = np.linalg.inv(N)
+lhs_new = A.T@N_inv@A
+rhs_new = A.T@N_inv@z
+m_new = np.linalg.inv(lhs_new)@rhs_new
+z_new = fun(m_new, x,y)
 
-#noise != 1
-noise = np.std(z_fit - z_pred)
-print('I think the per-point noise is', noise)
+errs = np.linalg.inv(lhs_new)
+param_errs = np.sqrt(np.diag(errs)) #find uncertainty in a
+print('The uncertaintly in a is', param_errs[0])
 
-N = np.eye(len(x))*noise**2
-mat = A.T@np.linalg.inv(N)@A
-errs = np.linalg.inv(mat)
-print('parameter errors are', np.sqrt(np.diag(errs)))
-
-derrs = A@errs@A.T
-model_sig = np.sqrt(np.diag(derrs))
+f = np.abs(z_new.min()) #focal length
+print('The focal length in meters is ', f/1000)
+i = np.where(np.abs(z_new) == f)
+z_errs=A@errs@A.T
+model_sigma=np.sqrt(np.diag(z_errs))
+print('The error of focal length is +-', float(model_sigma[i])/1000, 'm')
