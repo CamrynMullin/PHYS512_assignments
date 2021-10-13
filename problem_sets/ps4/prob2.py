@@ -2,40 +2,56 @@
 import numpy as np
 import prob1
     
-def ndiff(fun,x,ind): #version of differentiator from ps1 problem 2
-    pars1 = x.copy()
-    pars2 = x.copy()
-    dx = 0.01*x[ind]
-    pars1[ind] = x[ind]+dx
-    pars2[ind] = x[ind]-dx
-    f1, f2 = fun(pars1), fun(pars2)
-    deriv = (f1-f2)/(2*dx)
-    return deriv
-    
+#def ndiff(fun,x,ind): #version of differentiator from ps1 problem 2
+    #pars1 = x.copy()
+    #pars2 = x.copy()
+    #dx = 0.01*x[ind]
+    #pars1[ind] = x[ind]+dx
+    #pars2[ind] = x[ind]-dx
+    #f1, f2 = fun(pars1), fun(pars2)
+    #deriv = (f1-f2)/(2*dx)
+    #return deriv
+def ndiff(fun,x,x1,x2,dx,double = False): #version of differentiator from ps1 problem 2
+    f1, f2 = fun(x1), fun(x2)
+    if double:
+        deriv = (f1 + f2 - 2*fun(x))/(dx**2)
+    else:
+        deriv = (f1-f2)/(2*dx)
+    return deriv  
+
+def chisq_fun(y,model,noise):
+    return np.sum(((y-model)/noise)**2) 
+
 #newtons
-def fit_newton(m0,fun,x,y,noise, niter = 2):
+def fit_newton(m0,fun,x,y,noise):
     m = m0.copy()
     N = np.eye(len(noise))*noise
     N_inv = np.linalg.inv(N)
-    #tol_cur = np.zeros([len(m),len(m)])
-    #tol_cur += tol+1
-    #while tol_cur.any() > tol:
-    for j in range(niter):
+    chisq_old = 0 #chisq_fun(y,fun(m),noise)
+    delta_chisq = 1 #random initialization #chisq_old
+    while delta_chisq > 0.01:
         derivs = np.zeros([len(x),len(m)])
         for i in range(len(m)):
-            derivs[:,i] += ndiff(fun,m,i)
-        #print(derivs)
+            x1 = m.copy()
+            x2 = m.copy()
+            dx = 0.01*m[i]
+            x1[i],x2[i] = m[i] + dx, m[i] - dx
+            derivs[:,i] += ndiff(fun,m,x1,x2,dx)
+            #derivs[:,i] += ndiff(fun,m,i)
         model = fun(m)
         res = y - model
-        chisq = np.sum((res/noise)**2)
+        chisq = chisq_fun(y,model,noise)
         lhs = derivs.T@N_inv@derivs
         rhs = derivs.T@N_inv@res
         dm = np.linalg.pinv(lhs)@rhs
         m += dm
-        #print(lhs)
-        #tol_cur = lhs
         print('chisq is ',chisq,' with step ',dm) 
-    return m, dm, chisq
+        delta_chisq = chisq - chisq_old
+        chisq_old = chisq
+    #eps = 2**-52 
+    #dx = eps**(1/3)    
+    #curvature_matrix = ndiff(chisq_fun,model,model+dx,model-dx,dx,double=True)
+    return m, dm, chisq, lhs#, curvature_matrix
     
 fun = prob1.get_spectrum
 x = prob1.ell
@@ -43,15 +59,15 @@ y = prob1.spec
 errs = prob1.errs
 
 m0 = np.asarray([69,0.022,0.12,0.06,2.1e-9,0.95]) #initial guess
-m_fit, m_errs, chisq = fit_newton(m0,fun,x,y,errs)
+m_fit, m_errs, chisq, matrix = fit_newton(m0,fun,x,y,errs)
 
 #def main():
 #m_errs = np.mean(matrix, axis = 0)
-print(m_fit, m_errs)
+print('the best fit params are', m_fit, 'with errors', m_errs)
 data = np.column_stack([m_fit,m_errs])
 #print('data', data)
 np.savetxt("planck_fit_params.txt", data)
-#np.savetxt("curvture_matrix.txt", matrix)
+np.savetxt("curvture_matrix.txt", matrix)
     
 #bonus
 #m0[2] = 0 #set dark matter density set to zero

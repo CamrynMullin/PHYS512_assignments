@@ -10,30 +10,33 @@ def get_chisq(pars,x,y,noise,fun):
     model = fun(pars)
     return np.sum(((y-model)/noise)**2)
 
-def mcmc(pars,step_size,x,y,model,noise,nstep=1000):
-    chi_cur = get_chisq(pars,x,y,noise,model)
+def mcmc(pars,step_size,x,y,fun,noise,nstep=1000):
+    current_chisq = get_chisq(pars,x,y,noise,fun)
     npar = len(pars)
     chain = np.zeros([nstep,npar])
-    chivec = np.zeros(nstep)
+    chisq_vec = np.zeros(nstep)
     for i in range(nstep):
+        print('step', i)
         trial_pars = pars + step_size*np.random.randn(npar)
-        trial_chisq = get_chisq(trial_pars,x,y,noise,model)
-        delta_chisq = trial_chisq - chi_cur
+        trial_chisq = get_chisq(trial_pars,x,y,noise,fun)
+        delta_chisq = trial_chisq - current_chisq
         accept_prob = np.exp(-0.5*delta_chisq)
         accept = np.random.rand(1) < accept_prob
         if accept:
             pars = trial_pars
-            chi_cur = trial_chisq
+            current_chisq = trial_chisq
         chain[i,:] = pars
-        chivec[i] = chi_cur
-    return chain,chivec
+        chisq_vec[i] = current_chisq
+    return chain,chisq_vec
 
 def main():
     model_fun = prob1.get_spectrum  
     x = prob1.ell
     y = prob1.spec
     errs = prob1.errs
-    step_size = np.loadtxt('planck_fit_params.txt')[:1]  
+    #step_size = np.loadtxt("curvture_matrix.txt")
+    step_size = np.loadtxt('planck_fit_params.txt')[:,1]
+    #print(step_size)
     pars = np.array([69,0.022,0.12,0.06,2.1e-9,0.95])
     chain, chisq = mcmc(pars,step_size,x,y,model_fun,errs)
     #step_size_new = np.std(chain,axis=0)
