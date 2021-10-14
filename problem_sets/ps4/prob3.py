@@ -45,6 +45,7 @@ def main():
     
     data = np.column_stack([chain,chisq])
     np.savetxt("planck_chain.txt", data)
+    h = chain[-1][0]/100
     dark_energy = 1 - chain[-1][1]/h**2 - chain[-1][2]/h**2
     print('Mean value of dark energy is', dark_energy, 'with error', chisq[-1])
     
