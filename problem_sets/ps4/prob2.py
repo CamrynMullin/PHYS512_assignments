@@ -11,12 +11,8 @@ import prob1
     #f1, f2 = fun(pars1), fun(pars2)
     #deriv = (f1-f2)/(2*dx)
     #return deriv
-def ndiff(fun,x,x1,x2,dx,double = False): #version of differentiator from ps1 problem 2
-    f1, f2 = fun(x1), fun(x2)
-    if double:
-        deriv = (f1 + f2 - 2*fun(x))/(dx**2)
-    else:
-        deriv = (f1-f2)/(2*dx)
+def ndiff(fun,x,x1,x2,dx): #version of differentiator from ps1 problem 2 
+    deriv = (fun(x1)-fun(x2))/(2*dx)
     return deriv  
 
 def chisq_fun(y,model,noise):
@@ -43,7 +39,7 @@ def fit_newton(m0,fun,x,y,noise):
         chisq = chisq_fun(y,model,noise)
         lhs = derivs.T@N_inv@derivs
         rhs = derivs.T@N_inv@res
-        dm = np.linalg.pinv(lhs)@rhs
+        dm = np.linalg.inv(lhs)@rhs
         m += dm
         print('chisq is ',chisq,' with step ',dm) 
         delta_chisq = chisq - chisq_old
