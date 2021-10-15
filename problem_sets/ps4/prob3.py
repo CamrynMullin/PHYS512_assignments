@@ -16,7 +16,7 @@ def mcmc(pars,step_size,x,y,fun,noise,nstep=5000):
     chisq_vec = np.zeros(nstep)
     for i in range(nstep):
         print('step', i)
-        trial_pars = pars + step_size*np.random.randn(npar)
+        trial_pars = pars + step_size@np.random.randn(npar)
         trial_chisq = get_chisq(trial_pars,y,noise,fun)
         delta_chisq = trial_chisq - current_chisq
         accept_prob = np.exp(-0.5*delta_chisq)
@@ -31,13 +31,12 @@ def mcmc(pars,step_size,x,y,fun,noise,nstep=5000):
         print('chisq is', current_chisq)
     return chain,chain_errs,chisq_vec
 
-#def main():
 model_fun = prob1.get_spectrum  
 x = prob1.ell
 y = prob1.spec
 errs = prob1.errs
-#matrix = np.loadtxt("curvture_matrix.txt")
-step_size = np.loadtxt('planck_fit_params.txt')[:,1]
+matrix = np.loadtxt("curvture_matrix.txt")
+step_size = np.linalg.cholesky(matrix)
 pars = np.array([69,0.022,0.12,0.06,2.1e-9,0.95])
 chain, errs, chisq = mcmc(pars,step_size,x,y,model_fun,errs)
 print('The final best fit values were', chain[-1], 'with errors', errs[-1], 'and chisq', chisq[-1])
@@ -70,13 +69,13 @@ plt.legend()
 plt.savefig('q3_power_spectrum.png')
 plt.show()
 
-plt.ion()
-plt.figure()
-plt.plot(x,y-model_fun(pars),'.', label='Old Fit'); plt.plot(x,y-model_fun(chain[-1]), '.',label='MCMC fit')
-plt.errorbar(x,np.zeros(len(x)),prob1.errs,fmt='.', label='error bar')
-plt.legend()
-plt.savefig('q3_residuals.png')
-plt.show()
+#plt.ion()
+#plt.figure()
+#plt.plot(x,y-model_fun(pars),'.', label='Old Fit'); plt.plot(x,y-model_fun(chain[-1]), '.',label='MCMC fit')
+#plt.errorbar(x,np.zeros(len(x)),prob1.errs,fmt='.', label='error bar')
+#plt.legend()
+#plt.savefig('q3_residuals.png')
+#plt.show()
 
 
 chain_pars = np.array(chain)
@@ -96,6 +95,3 @@ plt.title('Paramater fourier tranform')
 plt.legend()
 plt.savefig('fourier_prob3.png')
 plt.show()
-    
-#if __name__ == "__main__":
-    #main()
