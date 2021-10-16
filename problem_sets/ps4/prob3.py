@@ -20,7 +20,7 @@ def mcmc(pars,step_size,x,y,fun,noise,nstep=5000):
         trial_chisq = get_chisq(trial_pars,y,noise,fun)
         delta_chisq = trial_chisq - current_chisq
         accept_prob = np.exp(-0.5*delta_chisq)
-        accept = np.random.rand(1) < accept_prob #always accept if chisq decrease
+        accept = np.random.rand(1) < accept_prob #always accept if chisq decrease, sometimes accept otherwise
         if accept:
             pars = trial_pars
             current_chisq = trial_chisq
@@ -42,7 +42,7 @@ chain, errs, chisq = mcmc(pars,step_size,x,y,model_fun,errs)
 print('The final best fit values were', chain[-1], 'with errors', errs[-1], 'and chisq', chisq[-1])
     
 data = np.column_stack([chisq,chain])
-np.savetxt("planck_chain.txt", data)
+np.savetxt("planck_chain1.txt", data)
     
 #computing dark energy
 h = chain[-1][0]/100
@@ -55,7 +55,7 @@ plt.figure()
 plt.ion()
 plt.plot(chisq)
 plt.title('Chi square from MCMC')
-plt.savefig('Chisq_prob3.png')
+plt.savefig('Chisq_prob31.png')
 plt.show()
 
 plt.ion()
@@ -66,32 +66,18 @@ plt.plot(x,y, label='data')
 plt.plot(x,model_fun(pars), label='Old Fit'); plt.plot(x,model_fun(chain[-1]), label='MCMC fit')
 plt.errorbar(planck_binned[:,0],planck_binned[:,1],errs_binned,fmt='.', label='error bars')
 plt.legend()
-plt.savefig('q3_power_spectrum.png')
+plt.savefig('q3_power_spectrum1.png')
 plt.show()
 
-#plt.ion()
-#plt.figure()
-#plt.plot(x,y-model_fun(pars),'.', label='Old Fit'); plt.plot(x,y-model_fun(chain[-1]), '.',label='MCMC fit')
-#plt.errorbar(x,np.zeros(len(x)),prob1.errs,fmt='.', label='error bar')
-#plt.legend()
-#plt.savefig('q3_residuals.png')
-#plt.show()
-
-
 chain_pars = np.array(chain)
-#plt.figure()
-#plt.ion()
 labels = ['H0', 'Ω_b h^2', 'Ω_c h^2', 'τ', 'A_s', 'n_s']
 
-#corner.corner(chain_pars[20:],labels=labels, show_titles=True,title_fmt='.2f')
-#plt.savefig('corner_prob3.png')
-#plt.show()
     
 #forier transform of each parameter
 plt.figure()
 for i in range(len(chain_pars[0])):
     plt.loglog(np.abs(np.fft.rfft(chain_pars[:,i])), label='{}'.format(labels[i]))
-plt.title('Paramater fourier tranform')
+plt.title('Parameter fourier transform')
 plt.legend()
-plt.savefig('fourier_prob3.png')
+plt.savefig('fourier_prob31.png')
 plt.show()
