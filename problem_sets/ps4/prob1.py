@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import camb
 
 def get_spectrum(pars,lmax=3000):
+    #print('params are', pars)
     H0 = pars[0]
     ombh2 = pars[1]
     omch2 = pars[2]
@@ -26,7 +27,6 @@ spec = planck[:,1] #variance in multipole
 errs = 0.5*(planck[:,2]+planck[:,3]); #1 sigma error
 
 #above can be use in multiple problems
-
 def main(): #parts that are question 1 specific
     #from test script
     pars1 = np.asarray([60,0.02,0.1,0.05,2.00e-9,1.0])  

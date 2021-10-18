@@ -17,6 +17,9 @@ def mcmc(pars,step_size,x,y,fun,noise,nstep=5000):
     for i in range(nstep):
         print('step', i)
         trial_pars = pars + step_size@np.random.randn(npar)
+        while trial_pars[3] < 0:
+            print('tau negative')
+            trial_pars = pars + step_size@np.random.randn(npar)
         trial_chisq = get_chisq(trial_pars,y,noise,fun)
         delta_chisq = trial_chisq - current_chisq
         accept_prob = np.exp(-0.5*delta_chisq)
@@ -34,20 +37,24 @@ def mcmc(pars,step_size,x,y,fun,noise,nstep=5000):
 model_fun = prob1.get_spectrum  
 x = prob1.ell
 y = prob1.spec
-errs = prob1.errs
+noise = prob1.errs
 matrix = np.loadtxt("curvture_matrix.txt")
 step_size = np.linalg.cholesky(matrix)
 pars = np.array([69,0.022,0.12,0.06,2.1e-9,0.95])
-chain, errs, chisq = mcmc(pars,step_size,x,y,model_fun,errs)
-print('The final best fit values were', chain[-1], 'with errors', errs[-1], 'and chisq', chisq[-1])
+chain, errs, chisq = mcmc(pars,step_size,x,y,model_fun,noise)
+
+pars_final = np.mean(chain[-1000:],axis=0)
+errs_final = np.mean(errs[-1000:],axis=0)
+chisq_final = np.mean(chisq[-1000:],axis=0)
+print('The final best fit values were', pars_final, 'with errors', errs_final, 'and chisq', chisq_final)
     
 data = np.column_stack([chisq,chain])
-np.savetxt("planck_chain1.txt", data)
+np.savetxt("planck_chain.txt", data)
     
 #computing dark energy
-h = chain[-1][0]/100
-dark_energy = 1 - chain[-1][1]/h**2 - chain[-1][2]/h**2
-dark_err = errs[-1][1]/h**2 + errs[-1][2]/h**2
+h = pars_final[0]/100
+dark_energy = 1 - pars_final[1]/h**2 - pars_final[2]/h**2
+dark_err = errs_final[1]/h**2 + errs_final[2]/h**2
 print('Mean value of dark energy is', dark_energy, 'with error', dark_err)
     
 #plotting
@@ -55,7 +62,7 @@ plt.figure()
 plt.ion()
 plt.plot(chisq)
 plt.title('Chi square from MCMC')
-plt.savefig('Chisq_prob31.png')
+plt.savefig('Chisq_prob3.png')
 plt.show()
 
 plt.ion()
@@ -63,21 +70,20 @@ planck_binned = np.loadtxt('COM_PowerSpect_CMB-TT-binned_R3.01.txt',skiprows=1)
 errs_binned = 0.5*(planck_binned[:,2]+planck_binned[:,3]);
 plt.figure()
 plt.plot(x,y, label='data')
-plt.plot(x,model_fun(pars), label='Old Fit'); plt.plot(x,model_fun(chain[-1]), label='MCMC fit')
+plt.plot(x,model_fun(pars), label='Old Fit'); plt.plot(x,model_fun(pars_final), label='MCMC fit')
 plt.errorbar(planck_binned[:,0],planck_binned[:,1],errs_binned,fmt='.', label='error bars')
 plt.legend()
-plt.savefig('q3_power_spectrum1.png')
+plt.savefig('q3_power_spectrum.png')
 plt.show()
 
 chain_pars = np.array(chain)
-labels = ['H0', 'Ω_b h^2', 'Ω_c h^2', 'τ', 'A_s', 'n_s']
-
+labels = ['H_0', 'Ω_b h^2', 'Ω_c h^2', 'τ', 'A_s', 'n_s']
     
 #forier transform of each parameter
 plt.figure()
 for i in range(len(chain_pars[0])):
-    plt.loglog(np.abs(np.fft.rfft(chain_pars[:,i])), label='{}'.format(labels[i]))
+    plt.loglog(np.abs(np.fft.rfft(chain_pars[:,i])), label='${}$'.format(labels[i]))
 plt.title('Parameter fourier transform')
 plt.legend()
-plt.savefig('fourier_prob31.png')
+plt.savefig('fourier_prob3.png')
 plt.show()
