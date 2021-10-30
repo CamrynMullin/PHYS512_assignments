@@ -7,24 +7,24 @@ import prob2
 def cor_shift(arr1,arr2,n):
     #shift array
     arr1 = prob1.conv(arr1,n)
-    arr2 = prob1.conv(arr2,n)
     return prob2.corr(arr1,arr2) #correlation
- 
 
 x = np.linspace(-10,10,1000)
 f = prob1.gauss(x,np.median(x))
-#normalization
-f = f/f.sum()
+corr_unshift = prob2.corr(f,f)
 corr_f1 = cor_shift(f,f,int(len(x)/2))
-corr_f2 = cor_shift(f,f,int(len(x)/100))
+corr_f2 = cor_shift(f,f,int(len(x)/4))
+corr_f3 = cor_shift(f,f,int(len(x)/8))
+corr_f4 = cor_shift(f,f,int(len(x)-1))
 
 plt.figure()
 plt.ion()
-plt.plot(x,f,label='gaussian')
+plt.plot(x,corr_unshift, label='unshifted')
 plt.plot(x,corr_f1, label='shifted by len(x)/2')
-plt.plot(x,corr_f2, label='shifted by len(x)/100')
+plt.plot(x,corr_f2, label='shifted by len(x)/4')
+plt.plot(x,corr_f3, label='shifted by len(x)/8')
+plt.plot(x,corr_f4, label='shifted by len(x)')
 plt.legend(loc='upper right')
-plt.savefig('gauss_corr_shifted.png')
+plt.savefig('q3.png')
 plt.show()
 
-#correlation does not seem to depend on shift

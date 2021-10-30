@@ -14,18 +14,15 @@ def corr(arr1,arr2):
 
 def main():
     x = np.linspace(-10,10,1000)
-    f = gauss(x,np.median(x))
+    f = gauss(x,np.median(x))  
     #normalization
-    f = f/f.sum()
     corr_f = corr(f,f)
-    #corr_f = np.fft.fftshift(corr_f)
     
     plt.figure()
     plt.ion()
-    plt.plot(x,f,label='gaussian')
-    plt.plot(x,corr_f, label='correlation')
+    plt.plot(np.abs(corr_f), label='correlation')
     plt.legend(loc='upper right')
-    plt.savefig('gauss_corr.png')
+    plt.savefig('q2.png')
     plt.show()
 
 if __name__ == "__main__":

@@ -28,13 +28,8 @@ def conv_safe(f,g):
 x1 = np.linspace(-10,10,1000)
 x2 = np.linspace(-10,10,1001)
 f = gauss(x1,np.median(x1))
-f/=f.sum()
 g = np.zeros(len(x2))
-#g[(x2>-2)&(x2<0)] = 1
 g[int(len(f)/2)] = 1
-g = g/g.sum()
-#f = np.append(f,np.zeros(5))
-#g = np.append(g,np.zeros(5))
 
 h = conv_safe(f,g)
 
@@ -45,5 +40,5 @@ plt.ion()
 plt.plot(f,label='f, input')
 plt.plot(h, label='h, output')
 plt.legend()
-plt.savefig('conv_safe.png')
+plt.savefig('q4.png')
 plt.show()
