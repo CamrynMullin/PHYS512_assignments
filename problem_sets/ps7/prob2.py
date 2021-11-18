@@ -60,10 +60,13 @@ my_exp = np.exp(-centers_lor)
 my_lor = lorentzian_y(centers_lor)*3
 
 plt.figure()
-plt.plot(x,y_lor,'.')
+plt.plot(x,y_lor,'.',color='pink', label = 'lorenzian hist')
 plt.plot(centers_lor, my_lor,'b', label = 'lorenzian')
 plt.plot(centers_lor, my_exp,'r', label = 'exponential')
+plt.xlim(0,20)
+plt.ylim(0,1.5) #zoom in to show that lorenzian always above exponential
 plt.legend()
+plt.savefig('lorentzian rejection.png')
 plt.show()
 
 ##accepting values
@@ -94,9 +97,10 @@ pred_exp = pred_exp/pred_exp.sum()
 
 plt.figure()
 plt.ion()
-plt.plot(centers_lor, hist_lor, '*')
-plt.plot(centers_lor, pred_exp, 'r')
-#plt.savefig('lorentzien.png')
+plt.plot(centers_lor, hist_lor, '*', label = 'histogram of deviates')
+plt.plot(centers_lor, pred_exp, 'r', label = 'predicted exponential')
+plt.legend()
+plt.savefig('histogram of deviates from rejection method.png')
 plt.show()
 
 
@@ -129,6 +133,7 @@ plt.show()
 #plt.plot(x,y_gauss,'.')
 #plt.plot(centers_gauss, my_gauss,'b', label = 'gauss')
 #plt.plot(centers_gauss, my_exp,'r', label = 'exponential')
+#plt.xlim(0,20)
 #plt.legend()
 #plt.show()
 
@@ -145,48 +150,55 @@ plt.show()
 #plt.figure()
 #plt.ion()
 #plt.plot(centers_gauss, hist_gauss, '*')
-#plt.plot(centers_gauss, pred_exp, 'r', label = 'gauss')
+#plt.plot(centers_gauss, pred_exp, 'r')
 ##plt.savefig('lorentzien.png')
 #plt.show()
 
 
-##trying power law:
+#trying power law:
+alpha = 1.5
+#PDF t^-alpha, q = 1- T^(1-alpha) --> T = (1-q)^(1/(1-alpha))
+t = (1 - q)**(1/(1 - alpha))
+y_power = t**(-alpha)*np.random.rand(n)*3
 
-#alpha = 1.5
-##PDF t^-alpha, q = 1- T^(1-alpha) --> T = (1-q)^(1/(1-alpha))
-#t = (1 - q)**(1/(1 - alpha))
-#y_power = t**(-alpha)*np.random.rand(n)
-
-#hist_power, centers_power = make_hist(t,bins)
-#pred_power = centers_power**(-alpha)
-#pred_power = pred_power/pred_power.sum()
-
-##plt.figure()
-##plt.plot(centers_power, hist_power, '*')
-##plt.plot(centers_power, pred_power, 'r')
-##plt.show()
-
-#my_power = centers_power**(-alpha)*3
+hist_power, centers_power = make_hist(t,bins)
+pred_power = centers_power**(-alpha)
+pred_power = pred_power/pred_power.sum()
 
 #plt.figure()
-#plt.plot(t,y_power,'.')
-#plt.plot(centers_lor, my_lor,'b', label = 'power')
-#plt.plot(centers_lor, my_exp,'r', label = 'exponential')
-#plt.legend()
+#plt.plot(centers_power, hist_power, '*')
+#plt.plot(centers_power, pred_power, 'r')
 #plt.show()
+
+my_power = centers_power**(-alpha)*3
+
+plt.figure()
+plt.plot(t,y_power,'.', color = 'pink', label = 'power hist')
+plt.plot(centers_power, my_power,'b', label = 'power')
+plt.plot(centers_power, my_exp,'r', label = 'exponential')
+plt.xlim(0,20)
+plt.legend()
+plt.savefig('power-law rejection.png')
+plt.show()
+
+y = np.pi*(np.random.rand(n)-0.5)
+h = np.random.rand(n)*1.22 #height, must be larger than curve
+#for exponential, prob=exp(-x) goes to exp(-tan(y))/cos^2(y)  
+accept = h < np.exp(-np.tan(y))/np.cos(y)**2
+t_use = np.tan(y[accept])
 
 #accept = y_power < np.exp(-t)
 #t_use = t[accept]
 
-#hist_power, centers_power = make_hist(t_use,bins)
-#pred_power = centers_power**(-alpha)
-#pred_power = pred_power/pred_power.sum()
+hist_power, centers_power = make_hist(t_use,bins)
+pred_exp = np.exp(-centers_power) #PDF
+pred_exp = pred_exp/pred_exp.sum()
 
-#plt.figure()
-#plt.ion()
-#plt.plot(centers_power, hist_power, '*')
-#plt.plot(centers_power, pred_power, 'r')
-##plt.savefig('lorentzien.png')
-#plt.show()
+plt.figure()
+plt.ion()
+plt.plot(centers_power, hist_power, '*')
+plt.plot(centers_power, pred_exp, 'r')
+#plt.savefig('lorentzien.png')
+plt.show()
 
 
