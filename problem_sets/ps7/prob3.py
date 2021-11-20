@@ -10,21 +10,24 @@ def make_hist(x,bins):
     return hist, centers #normalized histogram and centers
 
 # exponential: x = e^(-t) = CDF^-1(q), CDF: e^(-t) = q --> t = -ln(q)
-u = np.linspace(0,1,2001)
-u = u[1:]
-#have u < sqrt(e^-r)
-#ln(u) = 0.5*-r = 0.5*-v/u
-# v = -ln(u)*u*2
-v = -2*u*np.log(u)
-print('max v is', v.max())
+n = 100000
+u = np.linspace(0,1,n+1)
+u = u[1:] #ln(0) is problematic
+#have u < sqrt(ae^-ar)
+# v = -u/a * ln(u^2/a)
+# let a = 1
+v = -u*np.log(u**2)
 
 plt.figure()
-plt.plot(u,v,'k')
-plt.plot(u,-v,'k')
+plt.plot(u, v,'b', label = 'v')
+plt.plot(u, -v,'r', label = '-v')
+plt.xlim(0,1.5)
+plt.title('Bounding from ratio of uniforms')
+plt.legend()
+#plt.savefig('lorentzian_vs_exp_curve.png')
 plt.show()
 
 #ratio-of-uniforms
-n = 100000
 u = np.random.rand(n)
 v = (2*np.random.rand(n) - 1)*0.8
 r = v/u
@@ -41,12 +44,14 @@ plt.figure()
 plt.ion()
 plt.plot(centers, hist, '*', label = 'deviates')
 plt.plot(centers, pred_exp, 'r', label = 'exponential')
+plt.title('Exponential Deviates from Ratio of Uniforms')
 plt.legend()
-plt.savefig('exp_ratio.png')
+plt.savefig('q3_exp_deviates.png')
 plt.show()
 
+def eff(y, accept):
+    used = y[accept]
+    return len(used)/len(y) * 100
+efficiency = eff(r, accept)
+print('the efficiency is', efficiency, '%')
 
-##check the output
-#print('mean and std are ',t_use.mean(),np.std(t_use))
-#print('2 and 3-sigma fractions are ',np.mean(np.abs(t)<2),np.mean(np.abs(t)<3))
-##print('expected are ',erf(2/np.sqrt(2)),erf(3/np.sqrt(2)))
