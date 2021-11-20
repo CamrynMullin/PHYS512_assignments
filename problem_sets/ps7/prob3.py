@@ -54,4 +54,4 @@ def eff(y, accept):
     return len(used)/len(y) * 100
 efficiency = eff(r, accept)
 print('the efficiency is', efficiency, '%')
-
+#the efficiency is 81.266 % (from last run)

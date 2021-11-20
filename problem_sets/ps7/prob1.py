@@ -46,6 +46,7 @@ rand = mylib.rand
 rand.argtypes = []
 rand.restype = ctypes.c_int
 
+#from sample code
 @nb.njit
 def get_rands_nb(vals):
     n = len(vals)

@@ -3,11 +3,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.special import erfinv
 
-#write a rejection method to generate exponential derivatives from another distribution
-#lorenzien, gaussian or power for bounding distribution?
-#show histogram of deviates matches up with exponential curve
-#how efficient can you make this generator?
-
 def make_hist(x,bins):
     hist, bin_edges = np.histogram(x,bins) #x values, edges
     centers = 0.5*(bin_edges[1:] + bin_edges[:-1]) #wanna compare at center
@@ -35,31 +30,24 @@ plt.savefig('q2_prediced_exponential.png')
 plt.show()
 
 #REJECTION
-def reject(y):
-    h = np.random.rand(n)*1.22 #height
-    #for exponential, prob = exp(-x) goes to exp(-tan(y))/cos^2(y)  
-    accept = h < np.exp(-np.tan(y))/np.cos(y)**2
-    x_use = np.tan(y[accept])    
-    return x_use, accept
 
-#try lorentzian:
+#try lorentzian bounding:
 def lorentzian_x(n):
-    q = np.pi*(np.random.rand(n) - 0.5) #range from -pi/2 - +pi/2
+    q = np.pi*(np.random.rand(n) - 0.5) #range from -pi/2 to +pi/2
     return np.tan(q) #x
 
 def lorentzian_y(x):
     return 1/(1+x**2)
 
-x = lorentzian_x(n)
-#y = 1/(1+x^2)
-y_lor = 1/(1 + x**2)*np.random.rand(n)*3 #constants for scaling
+x_lor = lorentzian_x(n)
+y_lor = lorentzian_y(x_lor)*np.random.rand(n)
 
-hist_lor, centers_lor = make_hist(x,bins)
+hist_lor, centers_lor = make_hist(x_lor,bins)
 my_exp = np.exp(-centers_lor)
-my_lor = lorentzian_y(centers_lor)*3 # x3 to ensure it's higher than exp
+my_lor = lorentzian_y(centers_lor)
 
 plt.figure()
-plt.plot(x, y_lor,'.',color='pink', label = 'lorentzian hist')
+plt.plot(x_lor, y_lor,'.',color='pink', label = 'lorentzian hist')
 plt.plot(centers_lor, my_lor,'b', label = 'lorentzian')
 plt.plot(centers_lor, my_exp,'r', label = 'exponential')
 plt.xlim(0,20)
@@ -70,7 +58,8 @@ plt.savefig('lorentzian_vs_exp_curve.png')
 plt.show()
 
 #rejection     
-x_use, accept_lor = reject(y_lor)
+accept_lor = y_lor <  np.exp(-x_lor)
+x_use = x_lor[accept_lor]
 
 hist_lor, centers_lor = make_hist(x_use,bins)
 pred_exp = np.exp(-centers_lor) #PDF
@@ -86,7 +75,7 @@ plt.savefig('lorentzian_deviates_hist.png')
 plt.show()
 
 
-#trying gaussian:
+#trying gaussian bounding:
 def gauss_x(n):
     q = np.pi*(np.random.rand(n) - 0.5) 
     return erfinv(q*np.sqrt(2/np.pi))*np.sqrt(2) #see math in PDF
@@ -94,15 +83,15 @@ def gauss_x(n):
 def gauss_y(x):
     return np.exp(-0.5*x**2)
 
-x = gauss_x(n)
-y_gauss = gauss_y(x)*np.random.rand(n)*10
+x_gauss = gauss_x(n)
+y_gauss = gauss_y(x_gauss)*np.random.rand(n)*10
 
-hist_gauss, centers_gauss = make_hist(x,bins)
+hist_gauss, centers_gauss = make_hist(x_gauss,bins)
 my_exp = np.exp(-centers_gauss)
 my_gauss = gauss_y(centers_gauss)*10 #gaussian will not go above for all x!!
 
 plt.figure()
-plt.plot(x,y_gauss,'.',color = 'pink', label = 'power gauss')
+plt.plot(x_gauss,y_gauss,'.',color = 'pink', label = 'power gauss')
 plt.plot(centers_gauss, my_gauss,'b', label = 'gauss')
 plt.plot(centers_gauss, my_exp,'r', label = 'exponential')
 plt.xlim(0,20)
@@ -111,8 +100,11 @@ plt.legend()
 plt.savefig('gaussian_vs_exp_curve')
 plt.show()
 
+#it can be seen from this figure that the Gaussian distribtion is not a good bounding distribution for the exponential distribution
+
 #rejection     
-x_use, accept_gauss = reject(y_gauss)
+accept_gauss = y_gauss <  np.exp(-x_gauss)
+x_use = x_gauss[accept_gauss]
 
 hist_gauss, centers_gauss = make_hist(x_use,bins)
 pred_exp = np.exp(-centers_gauss) #PDF
@@ -127,14 +119,18 @@ plt.legend()
 plt.savefig('gauss_deviates_hist.png')
 plt.show()
 
-#trying power law:
+#trying power law bounding:
+def power_y(x, alpha):
+    return x**(-alpha)
+
 alpha = 1.5
+q = np.random.rand(n)
 #PDF t^-alpha, q = 1- T^(1-alpha) --> T = (1-q)^(1/(1-alpha))
 t = (1 - q)**(1/(1 - alpha))
-y_power = t**(-alpha)*np.random.rand(n)*3
+y_power = power_y(t, alpha)*np.random.rand(n)
 
 hist_power, centers_power = make_hist(t,bins)
-my_power = centers_power**(-alpha)*3 #x3 for scalling
+my_power = power_y(centers_power, alpha)
 my_exp = np.exp(-centers_power)
 
 plt.figure()
@@ -142,13 +138,15 @@ plt.plot(t,y_power,'.', color = 'pink', label = 'power hist')
 plt.plot(centers_power, my_power,'b', label = 'power')
 plt.plot(centers_power, my_exp,'r', label = 'exponential')
 plt.xlim(0,20)
+#plt.ylim(0,3)
 plt.title('Power-law vs Exponential Deviates')
 plt.legend()
 plt.savefig('power_vs_exp_curve.png')
 plt.show()
 
-#y_power = np.pi*(np.random.rand(n)-0.5)
-t_use, accept_power = reject(y_power)
+#rejection     
+accept_power = y_power <  np.exp(-t)
+t_use = t[accept_power]
 
 hist_power, centers_power = make_hist(t_use,bins)
 pred_exp = np.exp(-centers_power) #PDF
@@ -172,7 +170,9 @@ lor_eff = eff(y_lor, accept_lor)
 gauss_eff = eff(y_gauss, accept_gauss)
 power_eff = eff(y_power, accept_power)
 efficiency = [lor_eff, gauss_eff, power_eff]
+#[81.998, 19.175, 18.346] (from last run)
 names = ['Lorentzien', 'Gaussian', 'Power Law']
 print(efficiency)
 best = [i for i,val in enumerate(efficiency) if val == max(efficiency)]
 print('the most efficient method is', names[best[0]], 'with effieciency', efficiency[best[0]], '%')
+#the most efficient method is Lorentzien with effieciency 81.982 % (from last run)
