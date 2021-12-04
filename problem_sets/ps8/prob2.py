@@ -122,8 +122,8 @@ plt.show()
 V = rho_to_pot_masked(rho_out,mask,kernel_ft,True)
 plt.figure() #fig4
 plt.pcolormesh(x,y,V)
-plt.savefig('2c_V_box')
 plt.colorbar()
+plt.savefig('2c_V_box')
 
 def pad_array(array):
     s = np.shape(array)
